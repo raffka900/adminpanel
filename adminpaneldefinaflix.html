@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OVERLORD COMMAND v3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .sidebar { width: 280px; background: #000; border-right: 1px solid #111; height: 100vh; }
+        .nav-btn { width: 100%; text-align: left; padding: 12px 24px; font-size: 11px; font-weight: 900; letter-spacing: 1px; color: #555; transition: 0.2s; text-transform: uppercase; }
+        .nav-btn.active { background: #FF0000; color: #fff; box-shadow: 10px 0 30px rgba(255, 0, 0, 0.3); }
+        .nav-btn:hover:not(.active) { color: #fff; background: #0a0a0a; }
+        .stat-card { background: #000; border: 1px solid #1a1a1a; padding: 20px; border-radius: 4px; position: relative; }
+        .stat-val { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        .table-header { color: #333; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #111; }
+        .btn-kick { background: #300; color: #ff0000; border: 1px solid #500; font-size: 9px; padding: 2px 8px; font-weight: 900; border-radius: 2px; }
+        .btn-kick:hover { background: #ff0000; color: #fff; }
+        .red-glow { text-shadow: 0 0 15px rgba(255, 0, 0, 0.8); }
+        .id-text { color: #FF0000; font-weight: 900; }
+        input { background: #000; border: 1px solid #222; padding: 12px; font-size: 12px; width: 100%; outline: none; }
+        input:focus { border-color: #FF0000; }
+    </style>
+</head>
+<body class="flex">
+
+<div id="login-gate" class="fixed inset-0 bg-black z-[999] flex items-center justify-center">
+    <div class="w-72">
+        <h1 class="text-red-600 font-black italic text-2xl mb-8 tracking-tighter">DefinaFlix</h1>
+        <div class="space-y-3">
+            <input type="text" id="u" placeholder="IDENTITY">
+            <input type="password" id="p" placeholder="CREDENTIALS">
+            <button onclick="access()" class="w-full bg-red-600 p-3 font-black text-xs tracking-widest hover:bg-red-700">LOGIN</button>
+        </div>
+    </div>
+</div>
+
+<div id="ui-wrapper" class="hidden flex w-full">
+    <div class="sidebar py-10 flex flex-col">
+        <div class="px-8 mb-12">
+            <h1 class="text-red-600 font-black italic text-xl tracking-tighter">DefinaFlix </h1>
+            <p class="text-[8px] text-zinc-800 font-bold uppercase mt-1">Overlord Command v3.0</p>
+        </div>
+
+        <nav class="flex-1">
+            <button onclick="nav('live')" id="btn-live" class="nav-btn active">Live Monitor</button>
+            <button onclick="nav('users')" id="btn-users" class="nav-btn">User Database</button>
+            <button onclick="nav('root')" id="btn-root" class="nav-btn italic">>_ Root Console</button>
+            <button onclick="nav('bot')" id="btn-bot" class="nav-btn opacity-30 cursor-not-allowed">Bot Config</button>
+            <button onclick="nav('repo')" id="btn-repo" class="nav-btn opacity-30 cursor-not-allowed"></> Source Repo</button>
+            <button onclick="nav('settings')" id="btn-settings" class="nav-btn">Admin Settings</button>
+        </nav>
+    </div>
+
+    <div class="flex-1 p-12 overflow-y-auto">
+        <div class="flex justify-between items-start mb-12">
+            <div>
+                <h2 class="text-5xl font-black uppercase italic tracking-tighter leading-none mb-2" id="title">Real-Time Surveillance</h2>
+                <p class="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Active connections being intercepted.</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[9px] text-zinc-800 font-bold uppercase">Proxy: Tunnel_AES_256</p>
+                <p class="text-2xl font-black text-white italic tracking-tighter">142.2 GB/s</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-8 mb-16">
+            <div class="stat-card border-red-600/20">
+                <p class="text-[10px] text-zinc-600 font-bold uppercase mb-4 tracking-widest">Sessions</p>
+                <p class="stat-val red-glow">2,481</p>
+            </div>
+            <div class="stat-card border-yellow-500/20">
+                <p class="text-[10px] text-zinc-600 font-bold uppercase mb-4 tracking-widest">CPU Load</p>
+                <p class="stat-val text-yellow-500">89%</p>
+            </div>
+            <div class="stat-card border-green-500/20">
+                <p class="text-[10px] text-zinc-600 font-bold uppercase mb-4 tracking-widest">Database Hits</p>
+                <p class="stat-val text-green-500">42 / sec</p>
+            </div>
+        </div>
+
+        <div class="w-full">
+            <table class="w-full text-left font-bold">
+                <thead>
+                    <tr class="table-header">
+                        <th class="py-4 px-2">Trace ID</th>
+                        <th class="py-4 px-2">Activity</th>
+                        <th class="py-4 px-2">IP Address</th>
+                        <th class="py-4 px-2">Status</th>
+                        <th class="py-4 px-2 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="display" class="text-[11px] uppercase tracking-tighter">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const data = [
+        {id: 'X-3380', act: 'Searching: 18+', ip: '103.22.30.232', status: 'Jakarta'},
+        {id: 'X-3661', act: 'Searching: 18+', ip: '103.22.41.142', status: 'Jakarta'},
+        {id: 'X-6297', act: 'Watching: Joker', ip: '103.22.60.128', status: 'Jakarta'},
+        {id: 'X-5702', act: 'Buying VVIP', ip: '103.22.52.21', status: 'Jakarta'}
+    ];
+
+    function access() {
+        if(document.getElementById('u').value === 'AdminDfx' && document.getElementById('p').value === 'AdminDfx') {
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('ui-wrapper').classList.remove('hidden');
+            nav('live');
+        }
+    }
+
+    function nav(view) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + view).classList.add('active');
+        
+        const content = document.getElementById('display');
+        const title = document.getElementById('title');
+
+        if(view === 'live') {
+            title.innerText = "Real-Time Surveillance";
+            content.innerHTML = data.map(i => `
+                <tr class="border-b border-zinc-900">
+                    <td class="py-6 px-2 id-text">${i.id}</td>
+                    <td class="py-6 px-2 text-zinc-100">${i.act}</td>
+                    <td class="py-6 px-2 text-zinc-500">${i.ip}</td>
+                    <td class="py-6 px-2 text-zinc-100">${i.status}</td>
+                    <td class="py-6 px-2 text-right"><button onclick="this.closest('tr').remove()" class="btn-kick">KICK</button></td>
+                </tr>
+            `).join('');
+        } else {
+            title.innerText = view.replace('-', ' ');
+            content.innerHTML = `<tr><td colspan="5" class="py-20 text-center font-black italic text-zinc-800 tracking-[10px]">ENCRYPTED_MODULE</td></tr>`;
+        }
+    }
+</script>
+</body>
+</html>
